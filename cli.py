@@ -8,6 +8,7 @@ documentation of when each route is triggered. Run the API first
 import requests
 
 API_URL = "http://127.0.0.1:5000"
+TIMEOUT = 10  # seconds; a hung API should never freeze the CLI
 
 MENU = """
 ========= INVENTORY ADMIN PORTAL =========
@@ -74,13 +75,13 @@ def ask(prompt, default=None, cast=str):
 def view_all():
     category = ask("  Filter by category (blank for all): ")
     params = {"category": category} if category else {}
-    response = requests.get(f"{API_URL}/items", params=params)
+    response = requests.get(f"{API_URL}/items", params=params, timeout=TIMEOUT)
     show_items(response.json())
 
 
 def view_one():
     item_id = ask("  Item ID: ", cast=int)
-    response = requests.get(f"{API_URL}/items/{item_id}")
+    response = requests.get(f"{API_URL}/items/{item_id}", timeout=TIMEOUT)
     if response.status_code == 200:
         for key, value in response.json().items():
             print(f"    {key:>10}: {value}")
@@ -90,7 +91,7 @@ def view_one():
 
 def search_inventory():
     query = ask("  Search (name/brand/barcode): ", default="")
-    response = requests.get(f"{API_URL}/items/search", params={"q": query})
+    response = requests.get(f"{API_URL}/items/search", params={"q": query}, timeout=TIMEOUT)
     if response.status_code == 200:
         show_items(response.json())
     else:
@@ -100,7 +101,9 @@ def search_inventory():
 def low_stock_report():
     threshold = ask("  Threshold [5]: ", default=5, cast=int)
     response = requests.get(
-        f"{API_URL}/items/low-stock", params={"threshold": threshold}
+        f"{API_URL}/items/low-stock",
+        params={"threshold": threshold},
+        timeout=TIMEOUT,
     )
     show_items(response.json())
 
@@ -114,7 +117,7 @@ def add_item():
         "price": ask("  Price (KES): ", default=0, cast=float),
         "quantity": ask("  Quantity: ", default=0, cast=int),
     }
-    response = requests.post(f"{API_URL}/items", json=payload)
+    response = requests.post(f"{API_URL}/items", json=payload, timeout=TIMEOUT)
     if response.status_code == 201:
         print("  Created:")
         print(" " + fmt_item(response.json()))
@@ -136,7 +139,7 @@ def edit_item():
     if not changes:
         print("  Nothing to change.")
         return
-    response = requests.patch(f"{API_URL}/items/{item_id}", json=changes)
+    response = requests.patch(f"{API_URL}/items/{item_id}", json=changes, timeout=TIMEOUT)
     if response.status_code == 200:
         print("  Updated:")
         print(" " + fmt_item(response.json()))
@@ -150,7 +153,7 @@ def delete_item():
     if str(confirm).lower() != "y":
         print("  Cancelled.")
         return
-    response = requests.delete(f"{API_URL}/items/{item_id}")
+    response = requests.delete(f"{API_URL}/items/{item_id}", timeout=TIMEOUT)
     if response.status_code == 200:
         print(f"  Deleted item {item_id}.")
     else:
@@ -159,7 +162,7 @@ def delete_item():
 
 def lookup_barcode():
     barcode = ask("  Barcode: ")
-    response = requests.get(f"{API_URL}/external/products/{barcode}")
+    response = requests.get(f"{API_URL}/external/products/{barcode}", timeout=TIMEOUT)
     if response.status_code == 200:
         for key, value in response.json().items():
             print(f"    {key:>10}: {value}")
@@ -169,7 +172,7 @@ def lookup_barcode():
 
 def search_external():
     name = ask("  Product name: ", default="")
-    response = requests.get(f"{API_URL}/external/search", params={"name": name})
+    response = requests.get(f"{API_URL}/external/search", params={"name": name}, timeout=TIMEOUT)
     if response.status_code != 200:
         show_response_error(response)
         return
@@ -189,7 +192,7 @@ def import_barcode():
         "price": ask("  Selling price (KES) [0]: ", default=0, cast=float),
         "quantity": ask("  Initial stock [0]: ", default=0, cast=int),
     }
-    response = requests.post(f"{API_URL}/items/import/{barcode}", json=payload)
+    response = requests.post(f"{API_URL}/items/import/{barcode}", json=payload, timeout=TIMEOUT)
     if response.status_code == 201:
         print("  Imported into inventory:")
         print(" " + fmt_item(response.json()))

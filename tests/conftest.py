@@ -1,3 +1,5 @@
+"""Shared pytest fixtures."""
+
 import pytest
 
 import storage

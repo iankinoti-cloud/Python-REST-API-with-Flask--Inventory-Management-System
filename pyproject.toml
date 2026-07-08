@@ -3,8 +3,12 @@ max-line-length = 100
 
 [tool.pylint."messages control"]
 # Test names document themselves; per-test docstrings would only repeat them.
+# redefined-outer-name / unused-argument fire on every pytest fixture parameter
+# and on the Flask app-factory idiom — all false positives in this codebase.
 disable = [
     "missing-function-docstring",
     "missing-class-docstring",
     "too-few-public-methods",
+    "redefined-outer-name",
+    "unused-argument",
 ]
