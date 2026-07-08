@@ -1,0 +1,10 @@
+[tool.pylint.format]
+max-line-length = 100
+
+[tool.pylint."messages control"]
+# Test names document themselves; per-test docstrings would only repeat them.
+disable = [
+    "missing-function-docstring",
+    "missing-class-docstring",
+    "too-few-public-methods",
+]

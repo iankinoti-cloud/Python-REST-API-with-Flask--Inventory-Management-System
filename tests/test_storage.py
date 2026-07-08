@@ -18,7 +18,9 @@ class TestSeedData:
         assert len(items) == 8
         assert sorted(item["id"] for item in items) == [1, 2, 3, 4, 5, 6, 7, 8]
 
-    @pytest.mark.parametrize("required_field", ["id", "barcode", "name", "price", "quantity", "source"])
+    @pytest.mark.parametrize(
+        "required_field", ["id", "barcode", "name", "price", "quantity", "source"]
+    )
     def test_every_seed_item_has_required_field(self, required_field):
         assert all(required_field in item for item in storage.all_items())
 

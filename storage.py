@@ -8,6 +8,8 @@ the external API routes.
 
 import copy
 
+IMAGE_BASE = "https://images.openfoodfacts.org/images/products"
+
 SEED_ITEMS = [
     {
         "id": 1,
@@ -17,7 +19,7 @@ SEED_ITEMS = [
         "category": "Spreads",
         "price": 850.0,
         "quantity": 24,
-        "image_url": "https://images.openfoodfacts.org/images/products/301/762/042/2003/front_en.jpg",
+        "image_url": f"{IMAGE_BASE}/301/762/042/2003/front_en.jpg",
         "nutriscore": "e",
         "source": "openfoodfacts",
     },
@@ -29,7 +31,7 @@ SEED_ITEMS = [
         "category": "Beverages",
         "price": 80.0,
         "quantity": 120,
-        "image_url": "https://images.openfoodfacts.org/images/products/544/900/000/0996/front_en.jpg",
+        "image_url": f"{IMAGE_BASE}/544/900/000/0996/front_en.jpg",
         "nutriscore": "e",
         "source": "openfoodfacts",
     },
@@ -41,7 +43,7 @@ SEED_ITEMS = [
         "category": "Sauces",
         "price": 620.0,
         "quantity": 15,
-        "image_url": "https://images.openfoodfacts.org/images/products/807/680/951/3388/front_en.jpg",
+        "image_url": f"{IMAGE_BASE}/807/680/951/3388/front_en.jpg",
         "nutriscore": "d",
         "source": "openfoodfacts",
     },
@@ -53,7 +55,7 @@ SEED_ITEMS = [
         "category": "Snacks",
         "price": 150.0,
         "quantity": 60,
-        "image_url": "https://images.openfoodfacts.org/images/products/500/015/940/7236/front_en.jpg",
+        "image_url": f"{IMAGE_BASE}/500/015/940/7236/front_en.jpg",
         "nutriscore": "e",
         "source": "openfoodfacts",
     },
@@ -65,7 +67,7 @@ SEED_ITEMS = [
         "category": "Snacks",
         "price": 430.0,
         "quantity": 8,
-        "image_url": "https://images.openfoodfacts.org/images/products/317/568/001/1480/front_en.jpg",
+        "image_url": f"{IMAGE_BASE}/317/568/001/1480/front_en.jpg",
         "nutriscore": "b",
         "source": "openfoodfacts",
     },
@@ -77,7 +79,7 @@ SEED_ITEMS = [
         "category": "Bakery",
         "price": 320.0,
         "quantity": 10,
-        "image_url": "https://images.openfoodfacts.org/images/products/322/885/700/0852/front_en.jpg",
+        "image_url": f"{IMAGE_BASE}/322/885/700/0852/front_en.jpg",
         "nutriscore": "a",
         "source": "openfoodfacts",
     },
@@ -107,9 +109,12 @@ SEED_ITEMS = [
     },
 ]
 
-MUTABLE_FIELDS = {"barcode", "name", "brand", "category", "price", "quantity", "image_url", "nutriscore"}
+MUTABLE_FIELDS = {
+    "barcode", "name", "brand", "category",
+    "price", "quantity", "image_url", "nutriscore",
+}
 
-inventory = []
+inventory: list[dict] = []
 
 
 def reset():
