@@ -6,6 +6,7 @@ External OpenFoodFacts routes are added by the external-api feature.
 
 from flask import Flask, jsonify, request
 
+import openfoodfacts
 import storage
 
 
@@ -87,6 +88,47 @@ def create_app():
         except ValueError:
             return {"error": "'threshold' must be an integer"}, 400
         return jsonify(storage.low_stock(threshold=threshold))
+
+    # ---------------------------------------------------- external API (OFF)
+
+    @app.errorhandler(openfoodfacts.ExternalAPIError)
+    def external_api_down(error):
+        return {"error": str(error)}, 502
+
+    @app.get("/external/products/<barcode>")
+    def external_product(barcode):
+        product = openfoodfacts.fetch_product(barcode)
+        if product is None:
+            return {"error": f"Barcode {barcode} not found on OpenFoodFacts"}, 404
+        return product
+
+    @app.get("/external/search")
+    def external_search():
+        name = request.args.get("name", "").strip()
+        if not name:
+            return {"error": "Query parameter 'name' is required"}, 400
+        return jsonify(openfoodfacts.search_products(name))
+
+    @app.post("/items/import/<barcode>")
+    def import_item(barcode):
+        """Fetch a product from OpenFoodFacts and add it to the inventory
+        array. Optional JSON body supplies price/quantity overrides."""
+        existing = [i for i in storage.all_items() if i["barcode"] == barcode]
+        if existing:
+            return {
+                "error": f"Barcode {barcode} is already in inventory "
+                f"(item id {existing[0]['id']})"
+            }, 409
+
+        product = openfoodfacts.fetch_product(barcode)
+        if product is None:
+            return {"error": f"Barcode {barcode} not found on OpenFoodFacts"}, 404
+
+        overrides = request.get_json(silent=True) or {}
+        product["price"] = overrides.get("price", 0)
+        product["quantity"] = overrides.get("quantity", 0)
+        item = storage.create_item(product)
+        return item, 201
 
     return app
 
